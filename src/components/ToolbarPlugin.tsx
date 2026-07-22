@@ -29,7 +29,7 @@ import {
     UNDO_COMMAND,
 } from 'lexical';
 import type { LexicalEditor } from 'lexical';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import  { useCallback, useEffect, useRef, useState } from 'react';
 import {
     Undo2,
     Redo2,
@@ -90,18 +90,18 @@ function applyBlockType(editor: LexicalEditor, type: string) {
     }
 }
 
-function maskStyle(url: string): React.CSSProperties {
-    return {
-        WebkitMaskImage: `url('${url}')`,
-        WebkitMaskPosition: 'center',
-        WebkitMaskRepeat: 'no-repeat',
-        WebkitMaskSize: 'contain',
-        maskImage: `url('${url}')`,
-        maskPosition: 'center',
-        maskRepeat: 'no-repeat',
-        maskSize: 'contain',
-    };
-}
+// function maskStyle(url: string): React.CSSProperties {
+//     return {
+//         WebkitMaskImage: `url('${url}')`,
+//         WebkitMaskPosition: 'center',
+//         WebkitMaskRepeat: 'no-repeat',
+//         WebkitMaskSize: 'contain',
+//         maskImage: `url('${url}')`,
+//         maskPosition: 'center',
+//         maskRepeat: 'no-repeat',
+//         maskSize: 'contain',
+//     };
+// }
 
 function Divider() {
     return (
@@ -177,8 +177,8 @@ export function ToolbarPlugin() {
         'bg-transparent text-zinc-700 enabled:hover:bg-zinc-200 dark:text-zinc-200 dark:enabled:hover:bg-zinc-700';
     const btnActive =
         'bg-blue-500 text-white enabled:hover:bg-blue-600 dark:bg-blue-600 dark:enabled:hover:bg-blue-700';
-    const iconBase =
-        'flex h-[18px] w-[18px] shrink-0 bg-current group-hover:opacity-100';
+    // const iconBase =
+    //     'flex h-[18px] w-[18px] shrink-0 bg-current group-hover:opacity-100';
 
     return (
         <div
