@@ -51,7 +51,7 @@ export function CardClaseView() {
     const [youtubeUrl, setYoutubeUrl] = useState("")
     const [estadoProgreso, setEstadoProgreso] = useState<EstadoProgreso>(null)
     const [drawerOpen, setDrawerOpen] = useState(false)
-    
+
     const { rol } = useOutletContext<ProtectedOutletContext>()
 
     useEffect(() => {
@@ -89,7 +89,7 @@ export function CardClaseView() {
             setPdfUrl(data?.pdf_url ?? "")
             setYoutubeUrl(data?.youtube_url ?? "")
 
-            const { data: alumnoid} = await supabase.auth.getUser()
+            const { data: alumnoid } = await supabase.auth.getUser()
 
             // Traer el progreso de este alumno para esta clase puntual
             const { data: progresoData, error: progresoError } = await supabase
@@ -196,7 +196,7 @@ export function CardClaseView() {
                     </div>
                     <div className="prose dark:prose-invert max-w-none ">
                         <ReactMarkdown
-                         >
+                        >
                             {contenido || "Sin título"}
                         </ReactMarkdown>
                     </div>
@@ -212,11 +212,15 @@ export function CardClaseView() {
                             <span>Material de la clase</span>
                         </div>
 
-                        <div className="overflow-hidden rounded-2xl border bg-card shadow-sm ring-1 ring-border/50">
-                            <iframe
+                        <div className="overflow-hidden rounded-lg border bg-card shadow-sm ring-1 ring-border/50">
+                            {/* <iframe
                                 src={pdfUrl}
                                 className="h-[70vh] w-full"
                                 title="Material de la clase"
+                            /> */}
+                            <iframe
+                                src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}`}
+                                className="h-[80vh] w-full"
                             />
                         </div>
                     </div>
@@ -233,26 +237,26 @@ export function CardClaseView() {
 
                 {/* Entrega de actividad */}
                 <div className="flex flex-col gap-2 ">
-                    <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction="right"  > 
+                    <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction="right"  >
                         <DrawerTrigger asChild>
-                            {rol === "Prof" ?  (
+                            {rol === "Prof" ? (
                                 <Button
-                                type="button"
-                                disabled
-                                className="hidden"
-                                
-                            />
+                                    type="button"
+                                    disabled
+                                    className="hidden"
+
+                                />
                             ) : (
                                 <Button
-                                type="button"
-                                disabled={!puedeEntregar}
-                                className="w-fit"
-                            >
-                                <ClipboardList className="size-4" />
-                                {estadoProgreso === "reentregar" ? "Reentregar actividad" : "Realizar actividad"}
-                            </Button>
+                                    type="button"
+                                    disabled={!puedeEntregar}
+                                    className="w-fit"
+                                >
+                                    <ClipboardList className="size-4" />
+                                    {estadoProgreso === "reentregar" ? "Reentregar actividad" : "Realizar actividad"}
+                                </Button>
                             )}
-                            
+
                         </DrawerTrigger>
                         <DrawerContent className="h-full">
                             <DrawerClose asChild>
