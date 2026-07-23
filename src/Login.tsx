@@ -3,7 +3,7 @@ import { LoginForm } from "@/components/loginForm"
 
 export default function Login() {
     return (
-         <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+         <div className="flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
             <img
               src="https://images.unsplash.com/photo-1564426622559-5af68da63b96?q=80&w=700"
               alt="Image"

@@ -291,10 +291,10 @@ export function TableProf() {
 
   return (
     
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <Accordion type="multiple" defaultValue={cursos.map((c) => c.id)} className="min-w-0">
+    <div className="flex flex-col gap-6 p-4 md:p-6 ">
+      <Accordion type="multiple" defaultValue={cursos.map((c) => c.id)} className="min-w-0 bg-card">
         {cursos.map((curso) => (
-          <AccordionItem key={curso.id} value={curso.id} className="min-w-0">
+          <AccordionItem key={curso.id} value={curso.id} className="min-w-0 ">
             <AccordionTrigger className="px-5 py-4 hover:no-underline ">
               <div className="text-left">
                 <span className="font-bold text-lg text-[#DD0081]">{curso.titulo}</span>
@@ -307,16 +307,17 @@ export function TableProf() {
               {/* Contenedor con overflow-x-auto para evitar desbordes */}
               <div className="overflow-x-auto rounded-lg border border-muted mx-5 mb-5" >
                 <Table className="w-full">
-                  <TableHeader className="bg-muted/50">
+                  <TableHeader className="bg-muted">
                     <TableRow>
                       <TableHead className="min-w-[150px]">Alumno</TableHead>
+                      <TableHead className="text-center">Contacto</TableHead>
                       <TableHead className="text-center">Progreso</TableHead>
                       {curso.alumnos[0]?.progreso.map((p) => (
                         <TableHead key={p.clase_id} className="text-center min-w-[100px]">
                           Clase {p.orden_numero}
                         </TableHead>
                       ))}
-                      <TableHead className="text-right">Contacto</TableHead>
+                     
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -326,16 +327,6 @@ export function TableProf() {
                           {alumno.nombre_completo}
                           <div className="text-[10px] text-muted-foreground">{alumno.email}</div>
                         </TableCell>
-                        <TableCell className="text-center text-sm font-bold">
-                          {aprobadas}/{total}
-                        </TableCell>
-                        {progreso.map((p) => (
-                          <TableCell key={p.clase_id} className="text-center">
-                            <div className="scale-90 origin-center">
-                              <EstadoBadge estado={p.estado} />
-                            </div>
-                          </TableCell>
-                        ))}
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
                              <Button
@@ -395,6 +386,17 @@ export function TableProf() {
                               )}
                           </div>
                         </TableCell>
+                        <TableCell className="text-center text-sm font-bold">
+                          {aprobadas}/{total}
+                        </TableCell>
+                        {progreso.map((p) => (
+                          <TableCell key={p.clase_id} className="text-center">
+                            <div className="scale-90 origin-center">
+                              <EstadoBadge estado={p.estado} />
+                            </div>
+                          </TableCell>
+                        ))}
+                        
                       </TableRow>
                     ))}
                   </TableBody>

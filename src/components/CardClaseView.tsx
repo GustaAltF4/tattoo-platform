@@ -28,6 +28,7 @@ import {
     AlertCircle,
     RotateCcw,
     X,
+    FileXCorner,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useParams, useOutletContext } from "react-router-dom"
@@ -220,9 +221,9 @@ export function CardClaseView() {
                         </div>
                     </div>
                 ) : (
-                    <Card className="border-dashed">
-                        <CardContent className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
-                            <FileText className="size-8 opacity-40" />
+                    <Card className="border-dashed ">
+                        <CardContent className="flex flex-col items-center gap-2  text-center text-muted-foreground ">
+                            <FileXCorner className="size-8 opacity-40" />
                             <p className="text-sm">Esta clase no tiene material adjunto.</p>
                         </CardContent>
                     </Card>
