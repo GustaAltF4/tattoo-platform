@@ -24,6 +24,7 @@ import { Progress } from "./ui/progress"
 import { toast } from "sonner"
 import type { ProtectedOutletContext } from "./protectedRoute"
 import { CertificadoButton } from "./CertificadoDoc"
+import AnimatedList from "./AnimatedList"
 
 
 
@@ -317,49 +318,57 @@ export function CardClases() {
 
 
 
-      {clases.map((clase, index) => {
-        const estado = calcularEstadoClase(clase, index)
-        const bloqueada = estado === "bloqueada" && rol !== "Prof"
+      <AnimatedList
+        items={clases}
+        className="w-full"
+        displayScrollbar={true}
+        showGradients={false}
+        enableArrowNavigation={false}
+        initialSelectedIndex={-1}
+        renderItem={(clase, index, selected) => {
+          const estado = calcularEstadoClase(clase, index)
+          const bloqueada = estado === "bloqueada" && rol !== "Prof"
 
-
-
-        return (
-
-          <Card
-            key={clase.id}
-            className={bloqueada ? "opacity-60" : "transition-colors hover:bg-muted/30"}
-          >
-            <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="flex gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-sm font-semibold text-[#DD0081] border-2 border-[#DD0081]">
-                  {bloqueada ? <Lock className="size-4 " /> : clase.orden_numero}
+          return (
+            <Card
+              className={[
+                "transition-all duration-300",
+                bloqueada ? "opacity-60" : "hover:bg-muted/30",
+                selected ? "border-2 border-[#DD0081]/40 shadow-[0_0_0_1px_rgba(221,0,129,0.18)]" : "",
+              ].join(" ")}
+            >
+              <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-md border-2 border-[#DD0081] bg-muted text-sm font-semibold text-[#DD0081]">
+                    {bloqueada ? <Lock className="size-4 " /> : clase.orden_numero}
+                  </div>
+                  <div>
+                    <CardTitle className="line-clamp-2 text-base font-semibold">
+                      {clase.titulo}
+                    </CardTitle>
+                    <CardDescription className="mt-1 line-clamp-2">
+                      {clase.descripcion}
+                    </CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="line-clamp-2 text-base font-semibold">
-                    {clase.titulo}
-                  </CardTitle>
-                  <CardDescription className="mt-1 line-clamp-2">
-                    {clase.descripcion}
-                  </CardDescription>
-                </div>
-              </div>
 
-              {rol !== "Prof" && <EstadoBadge estado={estado} />}
-            </CardHeader>
+                {rol !== "Prof" && <EstadoBadge estado={estado} />}
+              </CardHeader>
 
-            <CardFooter className="justify-end pt-0">
-              <Button
-                onClick={() => irAClase(clase.id, estado)}
-                type="button"
-                disabled={bloqueada}
-              >
-                {bloqueada ? "Bloqueada" : "Ingresar"}
-                {!bloqueada && <ArrowRight className="ml-2 size-4" />}
-              </Button>
-            </CardFooter>
-          </Card>
-        )
-      })}
+              <CardFooter className="justify-end pt-0">
+                <Button
+                  onClick={() => irAClase(clase.id, estado)}
+                  type="button"
+                  disabled={bloqueada}
+                >
+                  {bloqueada ? "Bloqueada" : "Ingresar"}
+                  {!bloqueada && <ArrowRight className="ml-2 size-4" />}
+                </Button>
+              </CardFooter>
+            </Card>
+          )
+        }}
+      />
 
 
 

@@ -44,7 +44,7 @@ export function Menu() {
     return true
 })
 return (
-  <header className="sticky top-0 z-20 flex h-14 min-w-0 items-center gap-3 border-b border-[#DD0081]/15 bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:px-4">
+  <header className="sticky top-0 z-30 flex h-14 min-w-0 items-center gap-3 border-b border-[#DD0081]/15 bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:px-4">
     <div className="flex shrink-0 items-center gap-2">
       {showSidebarToggle ? (
         <SidebarTrigger className="text-[#DD0081] hover:bg-[#DD0081]/10 hover:text-[#DD0081]" />

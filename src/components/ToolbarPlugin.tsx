@@ -23,7 +23,9 @@ import {
     UNDO_COMMAND,
 } from 'lexical';
 import type { LexicalEditor } from 'lexical';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import {
     Undo2,
     Redo2,

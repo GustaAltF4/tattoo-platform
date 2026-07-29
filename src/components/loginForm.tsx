@@ -85,7 +85,7 @@ export function LoginForm({
                         <FieldGroup>
                             <div className="flex flex-col items-center gap-2 text-center">
                                 <h1 className="text-2xl font-bold text-[#DD0081]">Iniciar Sesión</h1>
-                                <p className="text-balance text-muted-foreground">
+                                <p className="text-balance text-primary">
                                     Ingresa a tu cuenta para poder acceder a la plataforma
                                 </p>
                             </div>
