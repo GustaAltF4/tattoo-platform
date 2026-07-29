@@ -5,23 +5,23 @@ import { ArrowRight, Sparkles } from "lucide-react"
 import CircularGallery from "@/components/CircularGallery"
 
 const imgAlumnos = [
-  "/alumnos/2 (1).jpeg",
-  "/alumnos/2 (2).jpeg",
-  "/alumnos/2 (3).jpeg",
-  "/alumnos/2 (4).jpeg",
-  "/alumnos/2 (6).jpeg",
-  "/alumnos/2 (7).jpeg",
-  "/alumnos/2 (8).jpeg",
-  "/alumnos/2 (9).jpeg",
-  "/alumnos/2 (5).jpeg",
+  "/alumnos/2 (1).webp",
+  "/alumnos/2 (2).webp",
+  "/alumnos/2 (3).webp",
+  "/alumnos/2 (4).webp",
+  "/alumnos/2 (6).webp",
+  "/alumnos/2 (7).webp",
+  "/alumnos/2 (8).webp",
+  "/alumnos/2 (9).webp",
+  "/alumnos/2 (5).webp",
 ]
 
 const imgAlumnos2 = [
-  "/alumnos/1 (1).jpeg",
-  "/alumnos/1 (2).jpeg",
-  "/alumnos/1 (3).jpeg",
-  "/alumnos/1 (4).jpeg",
-  "/alumnos/1 (5).jpeg",
+  "/alumnos/1 (1).webp",
+  "/alumnos/1 (2).webp",
+  "/alumnos/1 (3).webp",
+  "/alumnos/1 (4).webp",
+  "/alumnos/1 (5).webp",
 ]
 
 const clasesGallery = imgAlumnos.map((image, index) => ({

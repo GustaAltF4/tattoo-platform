@@ -78,7 +78,7 @@ export default function Studio() {
         <section className="relative min-h-[500px] overflow-hidden md:min-h-[600px] ">
           <div className="absolute inset-0 z-0">
             <img
-              src="img/2.png"
+              src="img/2.webp"
               alt="Hexagonik Tattoo Studio"
               className="w-full h-100 md:h-full object-cover  dark:brightness-[0.6]"
             />
@@ -258,7 +258,7 @@ export default function Studio() {
                 playsInline
                 className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
               >
-                <source src="img/video (2).mp4" type="video/mp4" />
+                <source src="img/video (2).webm" type="video/mp4" />
               </video>
             </div>
           </div>
@@ -272,12 +272,12 @@ export default function Studio() {
                 { src: "img/1 (2).webp", cls: "aspect-[2/4]" },
                 { src: "img/1 (3).webp", cls: "aspect-[2/4] border-2 border-[#DD0081]" },
                 { src: "img/1 (1).webp", cls: "aspect-square" },
-                { src: "img/1 (5).png", cls: "aspect-square" },
-                { src: "img/1 (4).png", cls: "aspect-[6/3] col-span-2" },
+                { src: "img/1 (5).webp", cls: "aspect-square" },
+                { src: "img/1 (11).webp", cls: "aspect-[6/3] col-span-2" },
                 { src: "img/1 (7).webp", cls: "aspect-square border-2 border-[#DD0081]" },
                 { src: "img/1 (6).webp", cls: "aspect-square" },
-                { src: "img/1 (6).png", cls: "aspect-[4/5] border-2 border-[#DD0081]" },
-                { src: "img/1 (3).png", cls: "aspect-[4/5]" },
+                { src: "img/1 (12).webp", cls: "aspect-[4/5] border-2 border-[#DD0081]" },
+                { src: "img/1 (13).webp", cls: "aspect-[4/5]" },
                 { src: "img/1 (10).webp", cls: "aspect-[5/3] col-span-2 border-2 border-[#DD0081]" },
               ].map((img, i) => (
                 <div
