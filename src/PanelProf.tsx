@@ -35,6 +35,7 @@ import {
   RotateCcw,
   Clock,
   CircleSlash,
+  Save,
 } from "lucide-react"
 import { CertificadoButton } from "./components/CertificadoDoc"
 
@@ -52,6 +53,13 @@ type ProgresoClase = {
   estado: "pendiente" | "aprobado" | "reentregar" | null
 }
 
+type ClaseConPdf = {
+  id: string
+  titulo: string
+  orden_numero: number
+  pdf_url: string | null
+}
+
 type AlumnoConProgreso = {
   alumno: Alumno
   progreso: ProgresoClase[]
@@ -63,6 +71,7 @@ type Curso = {
   id: string
   titulo: string
   alumnos: AlumnoConProgreso[]
+  clases: ClaseConPdf[]
 }
 
 function EstadoBadge({ estado }: { estado: ProgresoClase["estado"] }) {
@@ -99,9 +108,28 @@ export function TableProf() {
   const [cursos, setCursos] = useState<Curso[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
-
+  
   const [alumnoNombre, setAlumnoNombre] = useState("")
   const [cursoTitulo, setCursoTitulo] = useState("")
+
+  async function handleDescargarPdf(pdfUrl: string, nombreArchivo: string) {
+    try {
+      const response = await fetch(pdfUrl)
+      if (!response.ok) {
+        throw new Error("No se pudo descargar el PDF.")
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = nombreArchivo
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error al descargar el PDF:", error)
+    }
+  }
 
   useEffect(() => {
     let isMounted = true
@@ -145,8 +173,31 @@ export function TableProf() {
           if (!isMounted) return
 
           const alumnoIds = (inscripcionesData ?? []).map((i) => i.alumno_id)
+
+          // 4. Clases del curso
+          const { data: clasesData, error: clasesError } = await supabase
+            .from("clases")
+            .select("id, titulo, orden_numero, pdf_url")
+            .eq("curso_id", curso.id)
+            .order("orden_numero", { ascending: true })
+
+          if (clasesError) continue
+          if (!isMounted) return
+
+          const claseIds = (clasesData ?? []).map((c) => c.id)
+
           if (alumnoIds.length === 0) {
-            cursosConAlumnos.push({ id: curso.id, titulo: curso.titulo, alumnos: [] })
+            cursosConAlumnos.push({
+              id: curso.id,
+              titulo: curso.titulo,
+              alumnos: [],
+              clases: (clasesData ?? []).map((clase) => ({
+                id: clase.id,
+                titulo: clase.titulo,
+                orden_numero: clase.orden_numero,
+                pdf_url: clase.pdf_url ?? null,
+              })),
+            })
             continue
           }
 
@@ -160,19 +211,7 @@ export function TableProf() {
           if (alumnosError) continue
           if (!isMounted) return
 
-          // 5. Clases del curso
-          const { data: clasesData, error: clasesError } = await supabase
-            .from("clases")
-            .select("id, titulo, orden_numero")
-            .eq("curso_id", curso.id)
-            .order("orden_numero", { ascending: true })
-
-          if (clasesError) continue
-          if (!isMounted) return
-
-          const claseIds = (clasesData ?? []).map((c) => c.id)
-
-          // 6. Progreso de todos los alumnos en este curso
+          // 5. Progreso de todos los alumnos en este curso
           const { data: progresoData, error: progresoError } = await supabase
             .from("progreso_clases")
             .select("alumno_id, clase_id, estado")
@@ -183,7 +222,7 @@ export function TableProf() {
           if (!isMounted) return
 
 
-          // 7. Armar estructura por alumno
+          // 6. Armar estructura por alumno
           const alumnosConProgreso: AlumnoConProgreso[] = (alumnosData ?? []).map((alumno) => {
             const progreso: ProgresoClase[] = (clasesData ?? []).map((clase) => {
               const fila = (progresoData ?? []).find(
@@ -218,6 +257,12 @@ export function TableProf() {
             id: curso.id,
             titulo: curso.titulo,
             alumnos: alumnosConProgreso,
+            clases: (clasesData ?? []).map((clase) => ({
+              id: clase.id,
+              titulo: clase.titulo,
+              orden_numero: clase.orden_numero,
+              pdf_url: clase.pdf_url ?? null,
+            })),
           })
 
         }
@@ -243,7 +288,7 @@ export function TableProf() {
 
   if (isLoading) {
     return (
-      
+
       <div className="flex flex-col gap-4 p-4 md:p-6 md:max-w-[100%] ">
         {[1, 2].map((i) => (
           <Card key={i}>
@@ -290,7 +335,7 @@ export function TableProf() {
   }
 
   return (
-    
+
     <div className="flex flex-col gap-6 p-4 md:p-6 ">
       <Accordion type="multiple" defaultValue={cursos.map((c) => c.id)} className="min-w-0 bg-card">
         {cursos.map((curso) => (
@@ -317,7 +362,7 @@ export function TableProf() {
                           Clase {p.orden_numero}
                         </TableHead>
                       ))}
-                     
+
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -329,7 +374,31 @@ export function TableProf() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                             <Button
+                            <Button
+
+                              asChild
+
+                              variant="outline"
+
+                              size="icon"
+
+                              className="rounded-full size-8"
+
+                              title={`Enviar email a ${alumno.nombre_completo}`}
+
+                            >
+
+                              <a href={`mailto:${alumno.email}`}>
+
+                                <Mail className="size-3.5" />
+
+                              </a>
+
+                            </Button>
+
+                            {alumno.tel && (
+
+                              <Button
 
                                 asChild
 
@@ -339,51 +408,27 @@ export function TableProf() {
 
                                 className="rounded-full size-8"
 
-                                title={`Enviar email a ${alumno.nombre_completo}`}
+                                title={`WhatsApp a ${alumno.nombre_completo}`}
 
                               >
 
-                                <a href={`mailto:${alumno.email}`}>
+                                <a
 
-                                  <Mail className="size-3.5" />
+                                  href={`https://wa.me/54${alumno.tel}`}
+
+                                  target="_blank"
+
+                                  rel="noreferrer"
+
+                                >
+
+                                  <Phone className="size-3.5" />
 
                                 </a>
 
                               </Button>
 
-                              {alumno.tel && (
-
-                                <Button
-
-                                  asChild
-
-                                  variant="outline"
-
-                                  size="icon"
-
-                                  className="rounded-full size-8"
-
-                                  title={`WhatsApp a ${alumno.nombre_completo}`}
-
-                                >
-
-                                  <a
-
-                                    href={`https://wa.me/54${alumno.tel}`}
-
-                                    target="_blank"
-
-                                    rel="noreferrer"
-
-                                  >
-
-                                    <Phone className="size-3.5" />
-
-                                  </a>
-
-                                </Button>
-
-                              )}
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-center text-sm font-bold">
@@ -396,7 +441,7 @@ export function TableProf() {
                             </div>
                           </TableCell>
                         ))}
-                        
+
                       </TableRow>
                     ))}
                   </TableBody>
@@ -417,8 +462,8 @@ export function TableProf() {
           <form className="flex flex-col  gap-4 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-medium px-2 ">Nombre del alumno</label>
-              <input 
-                className="w-full h-10 px-3 border rounded-md mt-2" 
+              <input
+                className="w-full h-10 px-3 border rounded-md mt-2"
                 placeholder="Ingresa el Nombre del alumno"
                 value={alumnoNombre}
                 onChange={(e) => setAlumnoNombre(e.target.value)}
@@ -427,8 +472,8 @@ export function TableProf() {
 
             <div className="flex-1 space-y-2">
               <label className="text-sm font-medium px-2  ">Curso</label>
-              <input 
-                className="w-full h-10 px-3 border rounded-md mt-2" 
+              <input
+                className="w-full h-10 px-3 border rounded-md mt-2"
                 placeholder="Ingresa el Nombre del curso"
                 value={cursoTitulo}
                 onChange={(e) => setCursoTitulo(e.target.value)}
@@ -436,13 +481,81 @@ export function TableProf() {
             </div>
 
 
-            <CertificadoButton alumnoNombre={alumnoNombre}           
+            <CertificadoButton alumnoNombre={alumnoNombre}
               cursoTitulo={cursoTitulo}
 
             />
           </form>
         </CardContent>
       </Card>
+
+      <Card className="gap-4 mt-8">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold text-[#DD0081]">Descargar pdf de los cursos</CardTitle>
+          <CardDescription>Elegí la clase de la que querés descargar el pdf, si esa clase tiene uno adjunto.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+
+
+            {cursos.map((curso) => {
+              const clasesConPdf = curso.clases.filter((clase) => clase.pdf_url)
+
+              return (
+                <div key={curso.id} className="rounded-lg border bg-muted/20 p-4">
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold text-[#DD0081]">{curso.titulo}</h3>
+                    <p className="text-md text-muted-foreground">
+                      {clasesConPdf.length > 0
+                        ? `${clasesConPdf.length} clase${clasesConPdf.length !== 1 ? "s" : ""} con PDF adjunto`
+                        : "Este curso no tiene PDFs adjuntos por ahora"}
+                    </p>
+                  </div>
+
+                  {clasesConPdf.length > 0 ? (
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {clasesConPdf.map((clase) => (
+                        <div
+                          key={clase.id}
+                          className="flex items-center justify-between gap-4 rounded-md border bg-card px-4 py-3"
+                        >
+                          <div>
+                            <p className="text-sm font-medium">
+                              {clase.titulo}
+                            </p>
+                            
+                          </div>
+                          <Button
+                            variant="outline"
+                            className="shrink-0 inline-flex h-10 items-center justify-center gap-2 rounded-md text-sm"
+                            onClick={() =>
+                              clase.pdf_url &&
+                              handleDescargarPdf(
+                                clase.pdf_url,
+                                `Clase ${clase.orden_numero} - ${clase.titulo}.pdf`
+                              )
+                            }
+                          >
+                            
+                            <Save className="size-4 shrink-0" />
+                            <span>Descargar</span>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+                      No hay PDF para descargar en este curso.
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
+
+
