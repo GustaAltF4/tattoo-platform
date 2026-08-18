@@ -121,10 +121,30 @@ export function TableProf() {
 
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
+      const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+      const esSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+      if (esIOS && esSafari) {
+        const ventana = window.open(url, "_blank", "noopener,noreferrer")
+
+        if (!ventana) {
+          window.location.href = url
+        }
+
+        setTimeout(() => {
+          URL.revokeObjectURL(url)
+        }, 1000)
+        return
+      }
+
       const a = document.createElement("a")
       a.href = url
       a.download = nombreArchivo
+      a.rel = "noopener noreferrer"
+      document.body.appendChild(a)
       a.click()
+      a.remove()
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Error al descargar el PDF:", error)
