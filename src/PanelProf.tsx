@@ -114,6 +114,18 @@ export function TableProf() {
 
   async function handleDescargarPdf(pdfUrl: string, nombreArchivo: string) {
     try {
+      const urlDescarga = new URL(pdfUrl)
+      urlDescarga.searchParams.set("download", nombreArchivo)
+
+      const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+      const esSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+      if (esIOS && esSafari) {
+        window.location.assign(urlDescarga.toString())
+        return
+      }
+
       const response = await fetch(pdfUrl)
       if (!response.ok) {
         throw new Error("No se pudo descargar el PDF.")
@@ -121,22 +133,6 @@ export function TableProf() {
 
       const blob = await response.blob()
       const url = URL.createObjectURL(blob)
-      const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.userAgent.includes("Mac") && "ontouchend" in document)
-      const esSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
-
-      if (esIOS && esSafari) {
-        const ventana = window.open(url, "_blank", "noopener,noreferrer")
-
-        if (!ventana) {
-          window.location.href = url
-        }
-
-        setTimeout(() => {
-          URL.revokeObjectURL(url)
-        }, 1000)
-        return
-      }
 
       const a = document.createElement("a")
       a.href = url
