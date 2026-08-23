@@ -111,21 +111,34 @@ export function TableProf() {
   
   const [alumnoNombre, setAlumnoNombre] = useState("")
   const [cursoTitulo, setCursoTitulo] = useState("")
+  const [pdfEstado, setPdfEstado] = useState<Record<string, "idle" | "loading" | "done">>({})
 
-  async function handleDescargarPdf(pdfUrl: string, nombreArchivo: string) {
+  async function handleDescargarPdf(claseId: string, pdfUrl: string, nombreArchivo: string) {
+    setPdfEstado((prev) => ({ ...prev, [claseId]: "loading" }))
     try {
       const urlDescarga = new URL(pdfUrl)
       urlDescarga.searchParams.set("download", nombreArchivo)
 
-      const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      const esIOS =
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.userAgent.includes("Mac") && "ontouchend" in document)
-      const esSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 
-      if (esIOS && esSafari) {
-        window.location.assign(urlDescarga.toString())
+      if (esIOS) {
+        // iOS Safari no soporta descargas forzadas con blob ni con el atributo
+        // download. Abrir en nueva pestaña con el param ?download= de Supabase
+        // hace que el servidor envíe Content-Disposition: attachment y Safari
+        // use su descargador nativo.
+        const nuevaVentana = window.open(urlDescarga.toString(), "_blank")
+        if (!nuevaVentana || nuevaVentana.closed) {
+          // Si el popup fue bloqueado, fallback con location
+          window.location.assign(urlDescarga.toString())
+        }
+        setPdfEstado((prev) => ({ ...prev, [claseId]: "done" }))
+        setTimeout(() => setPdfEstado((prev) => ({ ...prev, [claseId]: "idle" })), 2000)
         return
       }
 
+      // Desktop y Android: descargar via blob para forzar el nombre de archivo
       const response = await fetch(pdfUrl)
       if (!response.ok) {
         throw new Error("No se pudo descargar el PDF.")
@@ -142,8 +155,11 @@ export function TableProf() {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
+      setPdfEstado((prev) => ({ ...prev, [claseId]: "done" }))
+      setTimeout(() => setPdfEstado((prev) => ({ ...prev, [claseId]: "idle" })), 2000)
     } catch (error) {
       console.error("Error al descargar el PDF:", error)
+      setPdfEstado((prev) => ({ ...prev, [claseId]: "idle" }))
     }
   }
 
@@ -544,17 +560,30 @@ export function TableProf() {
                           <Button
                             variant="outline"
                             className="shrink-0 inline-flex h-10 items-center justify-center gap-2 rounded-md text-sm"
+                            disabled={pdfEstado[clase.id] === "loading"}
                             onClick={() =>
                               clase.pdf_url &&
                               handleDescargarPdf(
+                                clase.id,
                                 clase.pdf_url,
                                 `Clase ${clase.orden_numero} - ${clase.titulo}.pdf`
                               )
                             }
                           >
-                            
-                            <Save className="size-4 shrink-0" />
-                            <span>Descargar</span>
+                            {pdfEstado[clase.id] === "loading" ? (
+                              <Loader2 className="size-4 shrink-0 animate-spin" />
+                            ) : pdfEstado[clase.id] === "done" ? (
+                              <CheckCircle2 className="size-4 shrink-0 text-green-500" />
+                            ) : (
+                              <Save className="size-4 shrink-0" />
+                            )}
+                            <span>
+                              {pdfEstado[clase.id] === "loading"
+                                ? "Descargando..."
+                                : pdfEstado[clase.id] === "done"
+                                  ? "Descargado"
+                                  : "Descargar"}
+                            </span>
                           </Button>
                         </div>
                       ))}
