@@ -1,0 +1,42 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Se ejecuta a las 12:00 UTC cada 5 días
+    - cron: '0 12 */5 * *'
+  workflow_dispatch: # Permite ejecutar la acción manualmente desde GitHub
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase REST API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar GET a Supabase para evitar suspensión
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "::error::No se encontró SUPABASE_URL en los Secrets del repositorio."
+            exit 1
+          fi
+
+          # Normalizar URL (quitar barra final si la tiene)
+          CLEAN_URL="${SUPABASE_URL%/}"
+
+          echo "Haciendo petición GET a Supabase..."
+          HTTP_STATUS=$(curl -s -o response.txt -w "%{http_code}" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$CLEAN_URL/rest/v1/cursos?select=id&limit=1")
+
+          echo "HTTP Status: $HTTP_STATUS"
+          cat response.txt
+          echo ""
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 500 ]; then
+            echo "Petición exitosa a Supabase. Base de datos activa."
+          else
+            echo "::error::Supabase devolvió código de error $HTTP_STATUS"
+            exit 1
+          fi
