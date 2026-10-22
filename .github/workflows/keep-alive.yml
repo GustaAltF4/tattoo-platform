@@ -12,11 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: write
-      contents: write
     steps:
-      - name: Checkout del repositorio
-        uses: actions/checkout@v4
-
       - name: Enviar GET a Supabase para evitar suspensión
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
@@ -47,5 +43,9 @@ jobs:
             exit 1
           fi
 
-      - name: Prevenir que GitHub deshabilite el workflow por inactividad (60 días)
-        uses: gautamkrishnar/keepalive-workflow@v2
+      - name: Mantener activo el workflow en GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Asegurando que el workflow permanezca activo en GitHub..."
+          gh workflow enable keep-alive.yml -R "${{ github.repository }}" 2>/dev/null || true
